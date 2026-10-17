@@ -36,7 +36,6 @@ Where:
 
 Because standard Bash shells process integer-only operations, the mathematical expression is ordered to preserve precision prior to division:
 
-```bash
 fanSpd=$(( ((gpuTemp - tMin) * (fsMax - fsMin) / (tMax - tMin) + fsMin) + xtrafSpd ))
 
 
