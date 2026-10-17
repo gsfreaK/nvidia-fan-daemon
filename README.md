@@ -38,3 +38,86 @@ Because standard Bash shells process integer-only operations, the mathematical e
 
 ```bash
 fanSpd=$(( ((gpuTemp - tMin) * (fsMax - fsMin) / (tMax - tMin) + fsMin) + xtrafSpd ))
+
+
+#### Control Logic & Threshold Boundaries:
+- **Idle State ($T_{\text{gpu}} \le T_{\text{min}}$):** Set manual state to `0` (Allow default driver behavior or 0-RPM fan modes).
+- **Linear Region ($T_{\text{min}} < T_{\text{gpu}} < T_{\text{max}}$):** Compute continuous target speed using the formula above and apply state `1` (Manual Override).
+- **Critical Thermal Region ($T_{\text{gpu}} \ge T_{\text{max}}$):** Throttle power limits dynamically via `nvidia-smi -pl $pwrLmt -gtt 69` to protect hardware from runaway thermal conditions.
+
+---
+
+## ⚙️ Configuration Variables
+
+Edit the variables at the top of the script according to your GPU thermal targets:
+
+| Variable | Default Value | Description |
+| :--- | :--- | :--- |
+| `tMin` | `30` | Minimum temperature threshold (°C) |
+| `tMax` | `75` | Maximum temperature threshold (°C) |
+| `fsMin` | `30` | Minimum fan duty cycle (%) |
+| `fsMax` | `100` | Maximum fan duty cycle (%) |
+| `xtrafSpd`| `6` | Safety speed percentage offset |
+
+---
+
+## 🛠️ Installation & Setup
+
+### 1. Requirements
+Ensure the NVIDIA proprietary drivers and CLI tools are installed on your system:
+- `nvidia-smi`
+- `nvidia-settings`
+
+### 2. Copy the Executable
+Copy the script to `/usr/local/bin/` and make it executable:
+```bash
+sudo cp nv-fan-spd-ctrl.sh /usr/local/bin/
+sudo chmod +x /usr/local/bin/nv-fan-spd-ctrl.sh
+
+🛠️ Installation & Setup
+1. Requirements
+
+Ensure the NVIDIA proprietary drivers and CLI tools are installed on your system:
+
+    nvidia-smi
+
+    nvidia-settings
+
+2. Copy the Executable
+
+Copy the script to /usr/local/bin/ and make it executable:
+Bash
+
+sudo cp nv-fan-spd-ctrl.sh /usr/local/bin/
+sudo chmod +x /usr/local/bin/nv-fan-spd-ctrl.sh
+
+3. Create the systemd Service
+
+Create the service unit file /etc/systemd/system/nv-fan-spd-ctrl.service with the following content:
+Ini, TOML
+
+[Unit]
+Description=nVidia Fan Speed Control
+After=multi-user.target
+Wants=multi-user.target
+
+[Service]
+ExecStart=/bin/bash /usr/local/bin/nv-fan-spd-ctrl.sh
+Restart=always
+TimeoutStopSec=1
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+
+4. Enable and Start the Daemon
+
+Reload the systemd daemon, enable the service to start at boot, and launch it immediately:
+Bash
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now nv-fan-spd-ctrl.service
+
+📄 License
+
+This project is licensed under the MIT License.
