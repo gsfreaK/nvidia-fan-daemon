@@ -40,6 +40,7 @@ Because standard Bash shells process integer-only operations, the mathematical e
 fanSpd=$(( ((gpuTemp - tMin) * (fsMax - fsMin) / (tMax - tMin) + fsMin) + xtrafSpd ))
 
 
+```bash
 #### Control Logic & Threshold Boundaries:
 - **Idle State ($T_{\text{gpu}} \le T_{\text{min}}$):** Set manual state to `0` (Allow default driver behavior or 0-RPM fan modes).
 - **Linear Region ($T_{\text{min}} < T_{\text{gpu}} < T_{\text{max}}$):** Compute continuous target speed using the formula above and apply state `1` (Manual Override).
