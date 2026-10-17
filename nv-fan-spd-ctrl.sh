@@ -10,7 +10,7 @@ cleanup() { sudo nvidia-settings -c :0 -a GPUFanControlState=0 -a GPUPowerMizerM
 trap cleanup 1 2 3 15 20		# Run cleanup() on exit signals (1,2,3,15,20)
 while true; do
 gpuTemp=$(nvidia-settings -c :0 -t -q gpucoretemp)		# Get current GPU temperature
-if [ $gpuTemp -le $tMin ]; then setFanSpeed 0 0; elif [ $gpuTemp -ge $tMax ]; then sudo nvidia-smi -pl $pwrLimt -gtt 69; else fanSpd=$(((($gpuTemp - $tMin)*($fsMax - $fsMin) / ($tMax - $tMin) + $fsMin) + $xtrafSpd ))		  # Check temperature range and adjust fan or power limits (to half the max TDP of the card)
+if [ $gpuTemp -le $tMin ]; then setFanSpeed 0 0; elif [ $gpuTemp -ge $tMax ]; then sudo nvidia-smi -pl $pwrLmt -gtt 69; else fanSpd=$(((($gpuTemp - $tMin)*($fsMax - $fsMin) / ($tMax - $tMin) + $fsMin) + $xtrafSpd ))		  # Check temperature range and adjust fan or power limits (to half the max TDP of the card)
 fi
 setFanSpeed 1 $fanSpd		#Sets the calculated fan speed
 sleep 3		# Pauses the app for 3 seconds
